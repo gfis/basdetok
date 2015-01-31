@@ -1,0 +1,128 @@
+/*  Detokenize BASIC programs
+    @(#) $Id: NumwordCommand.java 820 2011-11-07 21:59:07Z gfis $
+    2012-09-29, Georg Fischer
+*/
+/*
+ * Copyright 2012 Dr. Georg Fischer <punctum at punctum dot kom>
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+package org.teherba.basdetok;
+import  org.teherba.basdetok.BaseDetokenizer;
+import  org.teherba.basdetok.DetokenizerFactory;
+import  java.io.StringWriter;
+import  java.io.Writer;
+import  java.text.DecimalFormat;
+import  java.text.NumberFormat;
+import  java.util.Iterator;
+import  java.util.regex.Matcher;
+import  java.util.regex.Pattern;
+import  org.apache.log4j.Logger;
+
+/** Converts a file in some BASIC dialect from "tokenizes" (binary) format
+ *  into readable ASCII format.
+ *  This class is the commandline interface to {@link BaseDetokenizer}.
+ *  @author Dr. Georg Fischer
+ */
+final public class Command {
+    public final static String CVSID = "@(#) $Id: NumwordCommand.java 820 2011-11-07 21:59:07Z gfis $";
+
+    /** log4j logger (category) */
+    public Logger log;
+    /** Newline string (CR/LF or LF only) */
+    private String nl;
+
+    /** No-args Constructor
+     */
+    public Command() {
+        log = Logger.getLogger(Command.class.getName());
+        nl = System.getProperty("line.separator");
+    } // Constructor(0)
+
+    /** Convenience overlay method with a single string argument instead
+     *  of an array of strings.
+     *  @param commandLine all parameters of the commandline in one string
+     *  @return output of the call depending on the function: a digit sequence,
+     *  a number word, a month name etc.
+     */
+    public String process(String commandLine) {
+        return process(commandLine.split("\\s+"));
+    } // process(String)
+
+    /** Evaluates the arguments of the command line, and processes them.
+     *  @param args Arguments; if missing, print a usage hint.
+     *  @return output of the call depending on the dialect
+     */
+    public String process(String args[]) {
+        /** internal buffer for the string to be output */
+        DetokenizerFactory factory = new DetokenizerFactory();
+        String dialect = "m20";
+        try {
+            int iarg = 0; // index for command line arguments
+            if (iarg >= args.length) { // usage, with known BASIC dialects
+                System.err.println("usage:\tjava org.teherba.basdetok.Command [-enc encoding]");
+                Iterator<BaseDetokenizer> iter = factory.getIterator();
+                while (iter.hasNext()) {
+                    BaseDetokenizer detokenizer = (BaseDetokenizer) iter.next();
+                    dialect = detokenizer.getDialect();
+                    // keep the 8 spaces below, do not replace them by tabs
+                    System.err.println("    -" + dialect + "        ".substring(0, 8 - dialect.length())
+                            + detokenizer.getDescription());
+                } // while iter
+            } else { // >= 1 argument
+                dialect  = "m20";
+                // get all options
+                while (iarg < args.length && args[iarg].startsWith("-")) {
+                    String option = args[iarg ++];
+                    if (option.equals("-ident")) {
+                        dialect = option.substring(1);
+                    }
+                    if (option.equals("-m20")) {
+                        dialect = option.substring(1);
+                    }
+                    if (option.equals("-pc")) {
+                        dialect = option.substring(1);
+                    }
+                } // while options
+
+                BaseDetokenizer detokenizer = factory.getDetokenizer(dialect);
+                if (detokenizer != null) { // dialect code was found
+                    String fileName = null; // no filename => read from STDIN
+                    if (iarg < args.length) { // with filename argument
+                        fileName = args[iarg ++];
+                    }
+                    detokenizer.openFile(0, fileName); // binary
+                    detokenizer.openFile(1, null); // character, write to STDOUT at the moment
+                    detokenizer.generate();
+                    detokenizer.closeAll(); // close both files
+                } else {
+                    System.err.println("invalid BASIC dialect code \"" + dialect + "\"");
+                }
+            } // args.length >= 1
+        } catch (Exception exc) {
+            log.error(exc.getMessage(), exc);
+        } // try
+        return "";
+    } // process
+
+    /** Commandline interface for BASIC detokenizing
+     *  @param args elements of the commandline separated by whitespace:
+     *	<p>[-dialect] input_filename</p>
+     */
+    public static void main(String args[]) {
+        Command cli = new Command();
+        System.out.print(cli.process(args));
+    } // main
+
+} // Command
