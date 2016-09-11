@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!--
-    ant-buildfile for commandline, web application and web service
+    ant-buildfile for commandline, web application
     @(#) $Id: build.xml 304 2009-12-04 07:54:19Z gfis $
+    2016-09-11: core.jar, fill.lib
     2012-09-28: copied from numword
 -->
 <!--
@@ -20,41 +21,44 @@
  * limitations under the License.
 -->
 <project name="basdetok" default="all" basedir=".">
-    <property name="app.version"        value="1.0"/>
+    <property name="app.name"           value="basdetok" />
+    <property name="app.version"        value="1.1"/>
     <property name="app.main-class"     value="org.teherba.basdetok.Command"/>
+    <property name="tomcat.base"        value="/var/lib/tomcat" />
+    <property name="tomcat.home"        value="/usr/share/tomcat" />
     <import file="build-import.xml" />
 
     <target name="generate">
     </target>
 
-    <target name="gen_once">
+    <target name="core.jar">
+        <!-- without libraries, without web files -->
+        <jar jarfile="${dist.home}/${ant.project.name}-core.jar"
+                basedir="${build.classes}"
+                manifest="${build.classes}/META-INF/MANIFEST.MF"
+                excludes="web/** **/web/*.class **/format/*.class **/*Servlet.class"
+                >
+        </jar>
     </target>
 
-    <target name="test" depends="deploy,test.command,test.servlet,test.service" />
+    <target name="fill.lib">
+        <copy todir="${lib.home}">
+            <fileset dir="${tomcat.base}/openlib">
+                <include name="common-core.jar" />
+                <include name="commons-fileupload-1.2.2.jar" />
+                <include name="commons-io-2.1.jar" />
+               <include name="log4j-1.2.17.jar" />
+            </fileset>
+        </copy>
+    </target>
+
+
+    <target name="test" depends="deploy,test.command" />
 
     <target name="test.command"><!-- run the program from the commandline -->
         <antcall target="run">
             <param name="class" value="org.teherba.basdetok.Command" />
-            <param name="args"  value="-copy build.xml" />
-        </antcall>
-    </target>
-
-    <target name="test.m20">
-        <antcall target="run">
-            <param name="class" value="org.teherba.basdetok.Command" />
-            <param name="args"  value="-m20 test/m20/othello.bas" />
-        </antcall>
-    </target>
-
-    <target name="test.servlet"><!-- call the web page -->
-        <exec executable="lynx">
-            <arg line="-dump http://localhost/webapps/basdetok/" />
-        </exec>
-    </target>
-    <target name="test.service"><!-- call the webservice -->
-        <antcall target="run">
-            <param name="class" value="org.teherba.basdetok.Client"  />
-            <param name="args"  value="de spell"              />
+            <param name="args"  value="" />
         </antcall>
     </target>
 

@@ -1,0 +1,23 @@
+# Collection of Testcases for basdetok
+# @(#) $Id$
+# 2016-09-11, Dr. Georg Fischer: copied from ramath
+#-----------------------------------
+# Caution:
+# (1) Adjust the following line: URL where FloDskIm was deployed
+URL=http://localhost:8080/basdetok/servlet
+# (2) Adjust the following line: default commandline arguments
+ARGS=
+#======================================================================
+PACKAGE=org.teherba.basdetok
+
+TEST US01 
+CALL Command
+
+TEST US02 
+CALL Command -copy build.xml
+#--------
+TEST OM01
+CALL Command -m20 test/m20/othello.bas
+
+
+

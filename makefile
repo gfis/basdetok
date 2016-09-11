@@ -1,29 +1,61 @@
 #!/usr/bin/make
 
 # @(#) $Id: makefile 13 2008-09-05 05:58:51Z gfis $
+# 2016-09-11: regression, jfind
 # 2015-08-08: $(GWBASIC) for test data; target populate_lib
+# 2015-08-01: Georg Fischer
 
 APPL=basdetok
 JAVA=java -cp dist/$(APPL).jar org.teherba.$(APPL).Command
-GWBASIC=~/work/floppy/gw-basic
+JAVA=java -jar dist/$(APPL).jar
+REGR=java -cp dist/$(APPL).jar org.teherba.common.RegressionTester
+# REGR=java -Xss512m -Xms1024m -Xmx2048m -cp dist/$(APPL).jar org.teherba.common.RegressionTester
+DIFF=diff -y --suppress-common-lines --width=160
+DIFF=diff -w -rs -C0
+SRC=src/main/java/org/teherba/$(APPL)
+TOM=c:/var/lib/tomcat/
+TOMC=$(TOM)/webapps/$(APPL)
+TESTDIR=test
+# the following can be overriden outside for single or subset tests,
+# for example make regression TEST=U%
+TEST="%"
+# for Windows, SUDO should be empty
+SUDO=
 
-all: javadoc deploy zip
-
-populate_lib:
-	wget http://mirror.cc.columbia.edu/pub/software/apache/logging/log4j/1.2.17/log4j-1.2.17.zip
-	unzip -u -j -d . log4j-1.2.17.zip apache-log4j-*/log4j-*.jar
-	rm -f lib/log4j*.jar
-	mv -v log4j*.jar lib
-	rm -f log4j*.zip
-run:
-javadoc:
-	ant javadoc
-deploy:
-	ant deploy
-zip:
-	rm -f $(APPL).zip
-	find . | grep -v "test/" | zip -@ $(APPL).zip
-#-----------
+all: regression
+usage:
+	java -jar dist/$(APPL).jar
+#-------------------------------------------------------------------
+# Perform a regression test 
+regression: 
+	java -cp dist/$(APPL).jar \
+			org.teherba.common.RegressionTester $(TESTDIR)/all.tests $(TEST) 2>&1 \
+	| tee $(TESTDIR)/regression.log
+	grep FAILED $(TESTDIR)/regression.log
+#
+# Recreate all testcases which failed (i.e. remove xxx.prev.tst)
+# Handle with care!
+# Failing testcases are turned into "passed" and are manifested by this target!
+recreate: recr1 regr2
+recr0:
+	grep -E '> FAILED' $(TESTDIR)/regression*.log | cut -f 3 -d ' ' | xargs -l -ißß echo rm -v test/ßß.prev.tst
+recr1:
+	grep -E '> FAILED' $(TESTDIR)/regression*.log | cut -f 3 -d ' ' | xargs -l -ißß rm -v test/ßß.prev.tst
+regr2:
+	make regression TEST=$(TEST) > x.tmp
+regeval:
+	grep -iHE "tests (FAILED|passed|recreated)" $(TESTDIR)/*.log
+# test whether all defined tests in common.tests have *.prev.tst results and vice versa
+check_tests:
+	grep -E "^TEST" $(TESTDIR)/all.tests   | cut -b 6-8 | sort | uniq -c > $(TESTDIR)/tests_formal.tmp
+	ls -1 $(TESTDIR)/*.prev.tst            | cut -b 6-8 | sort | uniq -c > $(TESTDIR)/tests_actual.tmp
+	diff -y --suppress-common-lines --width=32 $(TESTDIR)/tests_formal.tmp $(TESTDIR)/tests_actual.tmp
+#---------------------------------------------------
+jfind:
+	find src -iname "*.java" | xargs -l grep -H $(JF)
+rmbak:
+	find src -iname "*.bak"  | xargs -l rm -v
+#---------------------------------------------------
 tgz:
 	tar czvf $(APPL)_`/bin/date +%Y%m%d`.tgz src test etc web *.wsd* *.xml makefile
 #-----------------------------------------------------------------------------------
