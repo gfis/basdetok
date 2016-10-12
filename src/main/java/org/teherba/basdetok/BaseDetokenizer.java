@@ -19,19 +19,13 @@
  */
 package org.teherba.basdetok;
 import  java.io.BufferedInputStream;
-import  java.io.BufferedReader;
 import  java.io.FileInputStream;
 import  java.io.FileOutputStream;
 import  java.io.InputStream;
-import  java.io.InputStreamReader;
 import  java.io.PrintWriter;
 import  java.nio.channels.Channels;
-import  java.nio.channels.ReadableByteChannel;
 import  java.nio.channels.WritableByteChannel;
-import  java.util.HashMap;
-import  java.util.Iterator;
 import  java.util.Properties;
-import  java.util.StringTokenizer;
 import  org.apache.log4j.Logger;
 
 /** Base class for BASIC detokenizers defining common properties and methods.

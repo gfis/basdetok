@@ -1,5 +1,6 @@
 /*  Detokenize BASIC programs
     @(#) $Id: NumwordCommand.java 820 2011-11-07 21:59:07Z gfis $
+    2016-10-12: less imports
     2012-09-29, Georg Fischer
 */
 /*
@@ -21,13 +22,7 @@
 package org.teherba.basdetok;
 import  org.teherba.basdetok.BaseDetokenizer;
 import  org.teherba.basdetok.DetokenizerFactory;
-import  java.io.StringWriter;
-import  java.io.Writer;
-import  java.text.DecimalFormat;
-import  java.text.NumberFormat;
 import  java.util.Iterator;
-import  java.util.regex.Matcher;
-import  java.util.regex.Pattern;
 import  org.apache.log4j.Logger;
 
 /** Converts a file in some BASIC dialect from "tokenizes" (binary) format
