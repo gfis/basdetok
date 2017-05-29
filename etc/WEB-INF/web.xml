@@ -23,15 +23,15 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
         version="3.0">
-    <display-name>BASIC Detokenizer</display-name>
+    <display-name>BasDetok</display-name>
     <description>
-        Detokenize files in some BASIC dialect
+        Detokenize files of several BASIC dialects
     </description>
 
     <!-- Servlets -->
     <servlet>
         <servlet-name>Servlet</servlet-name>
-        <servlet-class>org.teherba.basdetok.Servlet</servlet-class>
+        <servlet-class>org.teherba.basdetok.web.BasdetokServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>Servlet</servlet-name>
@@ -51,6 +51,7 @@
     </error-page>
 
     <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
         <welcome-file>index.html</welcome-file>
         <welcome-file>index.htm</welcome-file>
     </welcome-file-list>

@@ -1,6 +1,10 @@
 /*  Selects the applicable detokenizer
     @(#) $Id: DetokenizerFactory.java 657 2011-03-17 07:56:38Z gfis $
+<<<<<<< HEAD
     2017-05-29: javadoc 1.8
+=======
+    2016-10-12: less imports
+>>>>>>> 241a6ad90f306e70a8e1d3d28d5a35997156673f
     2012-10-09: PC GWBASIC
     2012-09-29: for M20
 */
@@ -22,7 +26,6 @@
 package org.teherba.basdetok;
 import  org.teherba.basdetok.BaseDetokenizer;
 import  java.util.ArrayList; // asList
-import  java.util.HashMap;
 import  java.util.Iterator;
 import  java.util.StringTokenizer;
 import  org.apache.log4j.Logger;

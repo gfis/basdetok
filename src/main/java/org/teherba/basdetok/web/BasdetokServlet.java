@@ -1,7 +1,10 @@
 /*  Detokenize BASIC programs
     @(#) $Id: NumwordServlet.java 820 2011-11-07 21:59:07Z gfis $
     2017-05-29: javadoc 1.8
-    2012-09-29, Dr. Georg Fischer
+    2016-10-12: was Servlet.java; ErrorServlet
+    2012-09-29, Dr. Georg Fischer 
+    
+    Still uses JSPs!
 */
 /*
  * Copyright 2012 Dr. Georg Fischer <punctum at punctum dot kom>
@@ -19,13 +22,13 @@
  * limitations under the License.
  */
 
-package org.teherba.basdetok;
+package org.teherba.basdetok.web;
 import  org.teherba.basdetok.Command;
+import  org.teherba.basdetok.BaseDetokenizer;
 import  org.teherba.basdetok.DetokenizerFactory;
 import  java.io.IOException;
 import  javax.servlet.RequestDispatcher;
 import  javax.servlet.ServletConfig;
-import  javax.servlet.ServletContext;
 import  javax.servlet.ServletException;
 import  javax.servlet.http.HttpServlet;
 import  javax.servlet.http.HttpServletRequest;
@@ -33,13 +36,13 @@ import  javax.servlet.http.HttpServletResponse;
 import  javax.servlet.http.HttpSession;
 import  org.apache.log4j.Logger;
 
-/** Spell numbers in some language.
+/** Detokenize BASIC programs.
  *  This class is the servlet interface to {@link BaseDetokenizer},
  *  and ressembles the functionality of the commandline interface in
  *  {@link Command}.
  *  @author Dr. Georg Fischer
  */
-public class Servlet extends HttpServlet {
+public class BasdetokServlet extends HttpServlet {
     public final static String CVSID = "@(#) $Id: NumwordServlet.java 820 2011-11-07 21:59:07Z gfis $";
     // public final static long serialVersionUID = 19470629004L;
 
@@ -58,7 +61,7 @@ public class Servlet extends HttpServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config); // ???
-        log = Logger.getLogger(Servlet.class.getName());
+        log = Logger.getLogger(BasdetokServlet.class.getName());
         command = new Command();
     } // init
 
@@ -66,9 +69,10 @@ public class Servlet extends HttpServlet {
      *  @param request fields from the client input form
      *  @param response data to be sent back the user's browser
      *  @throws IOException for IO errors
+     *  @throws ServletException for servlet errors
      */
     public void doGet(HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
+            HttpServletResponse response) throws IOException, ServletException {
         generateResponse(request, response);
     } // doGet
 
@@ -76,9 +80,10 @@ public class Servlet extends HttpServlet {
      *  @param request fields from the client input form
      *  @param response data to be sent back the user's browser
      *  @throws IOException for IO errors
+     *  @throws ServletException for servlet errors
      */
     public void doPost(HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
+            HttpServletResponse response) throws IOException, ServletException {
         generateResponse(request, response);
     } // doPost
 
@@ -99,10 +104,11 @@ public class Servlet extends HttpServlet {
      *  @param request fields from the client input form
      *  @param response data to be sent back the user's browser
      *  @throws IOException for IO errors
+     *  @throws ServletException for servlet errors
      */
     public void generateResponse(HttpServletRequest request,
-            HttpServletResponse response) throws IOException {
-        try {
+            HttpServletResponse response) throws IOException, ServletException {
+        if (true) { // try {
             HttpSession session = request.getSession();
             // NumwordCommand command = new NumwordCommand();
             String view     = getInputField(request, "view");
@@ -137,11 +143,13 @@ public class Servlet extends HttpServlet {
             }
             RequestDispatcher dispatcher = getServletContext().getRequestDispatcher("/" + newPage + ".jsp");
             dispatcher.forward(request, response);
+    /*
         } catch (Exception exc) {
             response.getWriter().write(exc.getMessage());
             System.out.println(exc.getMessage());
             throw new IOException(exc.getMessage());
+    */
         }
     } // generateResponse
 
-} // Servlet
+} // BasdetokServlet

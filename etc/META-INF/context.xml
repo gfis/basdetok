@@ -22,7 +22,7 @@
 
 -->
 <Context
-        path="/badetok" docBase="basdetok" 
+        path="/basdetok" docBase="basdetok" 
         debug="1"
         mapperContextRootRedirectEnabled="true"
         >
