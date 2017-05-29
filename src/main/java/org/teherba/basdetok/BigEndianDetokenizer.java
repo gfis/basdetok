@@ -1,5 +1,6 @@
-/*  Detokenizer for Big Endian oriented architectures, for example the Olivetti M20 
+/*  Detokenizer for Big Endian oriented architectures, for example the Olivetti M20
     @(#) $Id: PolSpeller.java 521 2010-07-26 07:06:10Z gfis $
+    2017-05-29: javadoc 1.8
     2012-09-29, Georg Fischer: from iCalendar; UTF-8 "pięć"
 */
 /*
@@ -28,7 +29,7 @@ import  org.teherba.basdetok.BaseDetokenizer;
 public class BigEndianDetokenizer extends BaseDetokenizer {
     public final static String CVSID = "@(#) $Id: PolSpeller.java 521 2010-07-26 07:06:10Z gfis $";
 
-    /** whether to write debugging output (iff > 0) */
+    /** whether to write debugging output (iff &gt; 0) */
     protected final static int debug = 0;
 
     /** No-args Constructor
@@ -37,38 +38,38 @@ public class BigEndianDetokenizer extends BaseDetokenizer {
         super();
     } // Constructor(0)
 
-	/** Gets the BASIC line number from 2 bytes, in big or little endian mode
-	 *	@param lineNo 2 bytes containing the BASIC line number
-	 *	@return readable BASIC line number, and a space
-	 */
-	protected int getLineNo(byte[] lineNo) {
-		return (((lineNo[0] & 0xff) << 8) | (lineNo[1] & 0xff)) & 0xffff;
-	} // getLineNo
-	
-	/** Gets some integer value from 2 bytes, in big or little endian mode
-	 *	@param int2 2 bytes containing the value
-	 *	@return a Java integer
-	 */
-	protected int getInt2(byte[] int2) {
-		return (((int2[0] & 0xff) << 8) | (int2[1] & 0xff)) & 0xffff;
-	} // getInt2
+    /** Gets the BASIC line number from 2 bytes, in big or little endian mode
+     *  @param lineNo 2 bytes containing the BASIC line number
+     *  @return readable BASIC line number, and a space
+     */
+    protected int getLineNo(byte[] lineNo) {
+        return (((lineNo[0] & 0xff) << 8) | (lineNo[1] & 0xff)) & 0xffff;
+    } // getLineNo
 
-	/** Prepares 4 or 8 bytes before being interpreted as a 32 or 64 bit, 
-	 *	big-endian, IEEE 754 floating point number.
-	 *	The bytes are shifted in place.
-	 *  This method can be overwritten in subclasses.
-	 *	@param floatn 4 or 8 bytes containing the value
-	 *  @param len number of bytes in <em>floatn</em>, 4 or 8
-	 */
-	protected void prepareFloat(byte[] floatn, int len) {
-		// default: do nothing
-	} // prepareFloat
-	
+    /** Gets some integer value from 2 bytes, in big or little endian mode
+     *  @param int2 2 bytes containing the value
+     *  @return a Java integer
+     */
+    protected int getInt2(byte[] int2) {
+        return (((int2[0] & 0xff) << 8) | (int2[1] & 0xff)) & 0xffff;
+    } // getInt2
+
+    /** Prepares 4 or 8 bytes before being interpreted as a 32 or 64 bit,
+     *  big-endian, IEEE 754 floating point number.
+     *  The bytes are shifted in place.
+     *  This method can be overwritten in subclasses.
+     *  @param floatn 4 or 8 bytes containing the value
+     *  @param len number of bytes in <em>floatn</em>, 4 or 8
+     */
+    protected void prepareFloat(byte[] floatn, int len) {
+        // default: do nothing
+    } // prepareFloat
+
     /** Initializes the tokenizer, especially: sets the token list.
      *  This method will be overridden by the class for the specific BASIC dialect.
      */
     protected void initialize() {
-		super.initialize();
+        super.initialize();
     } // initialize
 
     /** Reads the tokenized (binary) file and generates the ASCII output.

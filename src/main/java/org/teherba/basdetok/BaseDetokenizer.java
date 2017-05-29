@@ -1,5 +1,6 @@
 /*  Abstract class for all BASIC detokenizers
     @(#) $Id: BaseDetokenizer.java 852 2012-01-06 08:07:08Z gfis $
+    2017-05-29: javadoc 1.8
     2012-09-29, Georg Fischer
 */
 /*
@@ -40,7 +41,7 @@ import  org.apache.log4j.Logger;
 public abstract class BaseDetokenizer {
     public final static String CVSID = "@(#) $Id: BaseDetokenizer.java 852 2012-01-06 08:07:08Z gfis $";
 
-    /** whether to write debugging output (iff > 0) */
+    /** whether to write debugging output (iff &gt; 0) */
     protected final static int debug = 0;
 
     /** log4j logger (category) */
@@ -150,6 +151,7 @@ public abstract class BaseDetokenizer {
      *  Option names are used by internal methods which always specify them in lower case.
      *  @param name name of the option
      *  @param def default value if option is not set
+     *  @return option string
      */
     protected String getOption(String name, String def) {
         String result = def;
@@ -312,7 +314,6 @@ public abstract class BaseDetokenizer {
         // default: do nothing
     } // prepareFloat
 
-//  protected abstract String getFloat(byte[] floatn, int len);
     /** Gets some floating point value from 4 or 8 bytes, in big or little endian mode
      *  @param floatn 4 or 8 bytes containing the value
      *  @param len number of bytes in floatn

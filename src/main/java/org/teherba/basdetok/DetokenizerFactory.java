@@ -1,5 +1,6 @@
 /*  Selects the applicable detokenizer
     @(#) $Id: DetokenizerFactory.java 657 2011-03-17 07:56:38Z gfis $
+    2017-05-29: javadoc 1.8
     2012-10-09: PC GWBASIC
     2012-09-29: for M20
 */
@@ -42,14 +43,14 @@ public class DetokenizerFactory {
 
     /** Attempts to instantiate the detokenizer for some BASIC dialect
      *  @param dialect a lowercase word identifying the specific BASIC dialect
-     *	@param baseName the name of the applicable Java class, without the package name
+     *  @param baseName the name of the applicable Java class, without the package name
      */
     private void addDetokenizer(String dialect, String baseName) {
         try {
             detokenizers.add((BaseDetokenizer) Class.forName("org.teherba.basdetok." + baseName).newInstance());
         } catch (Exception exc) {
-        	log.error(exc.getMessage(), exc);
-        	// ignore any error silently - this BASIC dialect will not be known
+            log.error(exc.getMessage(), exc);
+            // ignore any error silently - this BASIC dialect will not be known
         }
     } // addDetokenizer
 
@@ -65,7 +66,7 @@ public class DetokenizerFactory {
             addDetokenizer("msx"     , "MSXDetokenizer"       );  // MicroSoft eXtended BASIC
             addDetokenizer("pc"      , "PCDetokenizer"        );  // MS-DOS PCs with GWBASIC.EXE
         } catch (Exception exc) {
-        	log.error(exc.getMessage(), exc);
+            log.error(exc.getMessage(), exc);
         }
     } // Constructor(0)
 
@@ -87,6 +88,7 @@ public class DetokenizerFactory {
     /** Determines whether the BASIC dialect code denotes this detokenizer class.
      *  @param detokenizer the detokenizer to be tested
      *  @param dialect code for the desired BASIC dialect
+     *  @return whether the class can hanlde this dialcct
      */
     public boolean isApplicable(BaseDetokenizer detokenizer, String dialect) {
         boolean result = false;

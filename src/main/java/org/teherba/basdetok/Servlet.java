@@ -1,6 +1,7 @@
 /*  Detokenize BASIC programs
     @(#) $Id: NumwordServlet.java 820 2011-11-07 21:59:07Z gfis $
-    2012-09-29, Dr. Georg Fischer 
+    2017-05-29: javadoc 1.8
+    2012-09-29, Dr. Georg Fischer
 */
 /*
  * Copyright 2012 Dr. Georg Fischer <punctum at punctum dot kom>
@@ -41,19 +42,19 @@ import  org.apache.log4j.Logger;
 public class Servlet extends HttpServlet {
     public final static String CVSID = "@(#) $Id: NumwordServlet.java 820 2011-11-07 21:59:07Z gfis $";
     // public final static long serialVersionUID = 19470629004L;
-    
+
     /** log4j logger (category) */
     private Logger log;
     /** instance of the number converter */
     private Command command;
-    
+
     /** Delivers <em>Transformer</em>s */
     private DetokenizerFactory factory;
 
     /** Called by the servlet container to indicate to a servlet
      *  that the servlet is being placed into service.
      *  @param config object containing the servlet's configuration and initialization parameters
-     *  @throws ServletException
+     *  @throws ServletException for servlet errors
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config); // ???
@@ -64,7 +65,7 @@ public class Servlet extends HttpServlet {
     /** Creates the response for a HTTP GET request.
      *  @param request fields from the client input form
      *  @param response data to be sent back the user's browser
-     *  @throws IOException
+     *  @throws IOException for IO errors
      */
     public void doGet(HttpServletRequest request,
             HttpServletResponse response) throws IOException {
@@ -74,7 +75,7 @@ public class Servlet extends HttpServlet {
     /** Creates the response for a HTTP POST request.
      *  @param request fields from the client input form
      *  @param response data to be sent back the user's browser
-     *  @throws IOException
+     *  @throws IOException for IO errors
      */
     public void doPost(HttpServletRequest request,
             HttpServletResponse response) throws IOException {
@@ -97,7 +98,7 @@ public class Servlet extends HttpServlet {
     /** Creates the response for a HTTP GET or POST request.
      *  @param request fields from the client input form
      *  @param response data to be sent back the user's browser
-     *  @throws IOException
+     *  @throws IOException for IO errors
      */
     public void generateResponse(HttpServletRequest request,
             HttpServletResponse response) throws IOException {
