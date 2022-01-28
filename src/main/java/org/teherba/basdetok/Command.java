@@ -23,7 +23,8 @@ package org.teherba.basdetok;
 import  org.teherba.basdetok.BaseDetokenizer;
 import  org.teherba.basdetok.DetokenizerFactory;
 import  java.util.Iterator;
-import  org.apache.log4j.Logger;
+import  org.apache.logging.log4j.Logger;
+import  org.apache.logging.log4j.LogManager;
 
 /** Converts a file in some BASIC dialect from "tokenizes" (binary) format
  *  into readable ASCII format.
@@ -41,7 +42,7 @@ final public class Command {
     /** No-args Constructor
      */
     public Command() {
-        log = Logger.getLogger(Command.class.getName());
+        log = LogManager.getLogger(Command.class.getName());
         nl = System.getProperty("line.separator");
     } // Constructor(0)
 

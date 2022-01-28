@@ -27,7 +27,8 @@ import  java.io.PrintWriter;
 import  java.nio.channels.Channels;
 import  java.nio.channels.WritableByteChannel;
 import  java.util.Properties;
-import  org.apache.log4j.Logger;
+import  org.apache.logging.log4j.Logger;
+import  org.apache.logging.log4j.LogManager;
 
 /** Base class for BASIC detokenizers defining common properties and methods.
  *  @author Dr. Georg Fischer
@@ -161,7 +162,7 @@ public abstract class BaseDetokenizer {
     /** Constructor with no arguments, no heavy-weight operations.
      */
     public BaseDetokenizer() {
-        log = Logger.getLogger(BaseDetokenizer.class.getName());
+        log = LogManager.getLogger(BaseDetokenizer.class.getName());
         setDialect("ident");
         setDescription("transparent copy");
         buffer = new byte[4096];

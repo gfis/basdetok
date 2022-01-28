@@ -25,7 +25,8 @@ import  org.teherba.basdetok.BaseDetokenizer;
 import  java.util.ArrayList; // asList
 import  java.util.Iterator;
 import  java.util.StringTokenizer;
-import  org.apache.log4j.Logger;
+import  org.apache.logging.log4j.Logger;
+import  org.apache.logging.log4j.LogManager;
 
 /** Selects a specific detokenizer, and iterates over the descriptions
  *  of all detokenizers and their codes.
@@ -58,7 +59,7 @@ public class DetokenizerFactory {
      *  The order of the BASIC dialects here defines the order in the user interfaces.
      */
     public DetokenizerFactory() {
-        log = Logger.getLogger(DetokenizerFactory.class.getName());
+        log = LogManager.getLogger(DetokenizerFactory.class.getName());
         try {
             detokenizers = new ArrayList<BaseDetokenizer>(64);
             addDetokenizer("copy"    , "FileCopy"             );  // input = output

@@ -34,7 +34,8 @@ import  javax.servlet.http.HttpServlet;
 import  javax.servlet.http.HttpServletRequest;
 import  javax.servlet.http.HttpServletResponse;
 import  javax.servlet.http.HttpSession;
-import  org.apache.log4j.Logger;
+import  org.apache.logging.log4j.Logger;
+import  org.apache.logging.log4j.LogManager;
 
 /** Detokenize BASIC programs.
  *  This class is the servlet interface to {@link BaseDetokenizer},
@@ -61,7 +62,7 @@ public class BasdetokServlet extends HttpServlet {
      */
     public void init(ServletConfig config) throws ServletException {
         super.init(config); // ???
-        log = Logger.getLogger(BasdetokServlet.class.getName());
+        log = LogManager.getLogger(BasdetokServlet.class.getName());
         command = new Command();
     } // init
 
