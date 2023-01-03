@@ -1,5 +1,6 @@
 /*  Selects the applicable detokenizer
     @(#) $Id: DetokenizerFactory.java 657 2011-03-17 07:56:38Z gfis $
+    2023-01-03: .getDeclaredConstructor().newInstance()
     2017-05-29: javadoc 1.8
     2016-10-12: less imports
     2012-10-09: PC GWBASIC
@@ -48,7 +49,8 @@ public class DetokenizerFactory {
      */
     private void addDetokenizer(String dialect, String baseName) {
         try {
-            detokenizers.add((BaseDetokenizer) Class.forName("org.teherba.basdetok." + baseName).newInstance());
+            detokenizers.add((BaseDetokenizer) Class.forName("org.teherba.basdetok." + baseName)
+                .getDeclaredConstructor().newInstance());
         } catch (Exception exc) {
             log.error(exc.getMessage(), exc);
             // ignore any error silently - this BASIC dialect will not be known

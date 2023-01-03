@@ -1,5 +1,7 @@
 /*  Abstract class for all BASIC detokenizers
     @(#) $Id: BaseDetokenizer.java 852 2012-01-06 08:07:08Z gfis $
+    2023-01-03: for m20 do not substitute REM by apostrophe
+    2022-01-28: log4j 2.17
     2017-05-29: javadoc 1.8
     2012-09-29, Georg Fischer
 */
@@ -319,7 +321,7 @@ public abstract class BaseDetokenizer {
         StringBuffer result = new StringBuffer(16);
         String digs = null;
         int ind = 0;
-        if (debug > 0) {
+        if (debug >= 2) {
             String sep = "{F ";
             int bits = 0;
             while (ind < len) {
@@ -452,7 +454,8 @@ public abstract class BaseDetokenizer {
                         }
                         line.append(token);
                     } else if (ch == 0x3a) { // ":" has some exceptions
-                        state = State.COLON;
+                        line.append((char) ch);
+                    //  state = State.COLON;
                     } else if (ch >= 0x20) {
                         line.append((char) ch);
                     } else { // < 0x20
@@ -470,7 +473,7 @@ public abstract class BaseDetokenizer {
                             case 0x0c: // hexadecimal constant
                                 int2[0] = get1();
                                 int2[1] = get1();
-                                line.append("&O" + Integer.toHexString(getInt2(int2)));
+                                line.append("&H" + Integer.toHexString(getInt2(int2)).toUpperCase());
                                 break;
                             case 0x0d: // line pointer, after use
                             case 0x0e: // line pointer, before use
@@ -538,7 +541,14 @@ public abstract class BaseDetokenizer {
                         } else if (token.equals("ELSE")) {
                             line.append(token); // "ELSE" instead of ":ELSE"
                         } else if (token.equals("REM")) {
-                            line.append("\'"); // apostrophe is replacement for ":REM"
+                            line.append(":");
+                    /*
+                            if (! getDialect().equals("m20")) {
+                                line.append("\'"); // apostrophe is replacement for ":REM"
+                            } else {
+                                line.append(token);
+                            }
+                    */
                         } else {
                             line.append(":");
                             readOff = false;
