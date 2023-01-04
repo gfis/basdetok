@@ -1,9 +1,22 @@
 <html>
 <body>
-For a build of the application with <em>ant dist<em>, the <em>lib</em> directory
-should be populated with the following libraries:
-<ul>
-<li><a href="https://logging.apache.org/log4j/1.2/download.html">log4j</a></li>
-</ul>
+For a build of the application with <em>ant dist</em>, the <em>lib</em> directory
+should be populated with the following libraries (perhaps with higher versions):
+
+<pre>
+from <a href="https://github.com/gfis/common">https://github.com/gfis/common</a>
+  git clone common ; cd common ; ant dist ; cp -v lib/common-core.jar your-lib
+from <a href="https://commons.apache.org/proper/commons-fileupload/download_fileupload.cgi">https://commons.apache.org/proper/commons-fileupload/download_fileupload.cgi</a>
+  commons-fileupload-1.3.2.jar
+from <a href="https://commons.apache.org/proper/commons-io/download_io.cgi">https://commons.apache.org/proper/commons-io/download_io.cgi</a>
+  commons-io-2.5.jar
+from <a href="https://logging.apache.org/log4j/2.x/download.html">https://logging.apache.org/log4j/2.x/download.html</a>:
+  log4j-api-2.17.1.jar 
+  log4j-core-2.17.1.jar	
+</pre>
+Last update: 2023-01-04.
+<p>
+Problems, questions to: Dr dot Georg dot Fischer at gmail dot ckom
+</p>
 </body>
 </html>

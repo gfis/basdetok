@@ -394,7 +394,7 @@ public abstract class BaseDetokenizer {
     /** Append a part to the output buffer.
      *  @param part String to be appended, possibly with a space before
      */
-    protected void appendPart(String part) {
+    protected void appendPart(String part, boolean isToken) {
         if (insertSP && Character.isLetterOrDigit(part.charAt(0))) { // new starts with a letter
             int last = line.length() - 1;
             if (last >= 0) {
@@ -402,9 +402,9 @@ public abstract class BaseDetokenizer {
                     line.append(' ');
                 }
             }
-            insertSP = false;
         }
         line.append(part);
+        insertSP = isToken && ! part.equals("FN");
     } // appendPart
 
     /** Reads the tokenized (binary) file and generates the ASCII output.
@@ -461,8 +461,7 @@ public abstract class BaseDetokenizer {
                             line.append("{^" + Integer.toHexString(bt) + "," + Integer.toHexString(bt) + "}");
                         }
                         token = getToken(ch);
-                        appendPart(token);
-                        insertSP = true;
+                        appendPart(token, true);
                      /*
                         token = getToken(ch);
                         if (debug >= 3) {
@@ -509,12 +508,11 @@ public abstract class BaseDetokenizer {
                                 readOff = false;
                             } // else skip a superfluous ":"
                         }
-                        appendPart(token);
-                        insertSP = true;
+                        appendPart(token, true);
                     } else if (ch == 0x3a) { // ":" has some exceptions
                         state = State.COLON;
                     } else if (ch >= 0x20) {
-                        appendPart(Character. toString(ch));
+                        appendPart(Character. toString(ch), false);
                     } else if (ch >= ' ') {
                         insertSP = false;
                         line.append(ch);
@@ -609,7 +607,7 @@ public abstract class BaseDetokenizer {
                         token = getToken(ch);
                         if (false) {
                         } else if (token.equals("ELSE")) {
-                            appendPart(token); // "ELSE" instead of ":ELSE"
+                            appendPart(token, true); // "ELSE" instead of ":ELSE"
                         } else if (token.equals("WHILE")) {
                             line.append(":");
                             readOff = false; // try current byte again
