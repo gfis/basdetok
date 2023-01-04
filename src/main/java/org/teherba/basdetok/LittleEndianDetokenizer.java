@@ -31,9 +31,6 @@ import  org.teherba.basdetok.BaseDetokenizer;
 public class LittleEndianDetokenizer extends BaseDetokenizer {
     public final static String CVSID = "@(#) $Id$";
 
-    /** whether to write debugging output */
-    protected final static int debug = 0;
-
     /** No-args Constructor
      */
     public LittleEndianDetokenizer() {
@@ -74,19 +71,5 @@ public class LittleEndianDetokenizer extends BaseDetokenizer {
             itar -= 1;
         } // while isrc
     } // prepareFloat
-
-    /** Initializes the tokenizer, especially: sets the token list.
-     *  This method will be overridden by the class for the specific BASIC dialect.
-     */
-    protected void initialize() {
-        super.initialize();
-    } // initialize
-
-    /** Reads the tokenized (binary) file and generates the ASCII output.
-     *  @return whether the transformation was successful
-     */
-    protected boolean generate() {
-        return super.generate();
-    } // generate
 
 } // LittleEndianDetokenizer

@@ -240,7 +240,6 @@ public class MSXDetokenizer extends LittleEndianDetokenizer {
      *  binary value      111.1
      *  decimal value     7.5
      *  </pre>
-
      */
     protected void prepareFloat(byte[] floatn, int len) {
         super.prepareFloat(floatn, len); // reverse the byte order

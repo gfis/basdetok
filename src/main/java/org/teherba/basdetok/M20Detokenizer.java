@@ -201,7 +201,6 @@ public class M20Detokenizer extends BigEndianDetokenizer {
         tokenStrings[0xf1] = "^";
         tokenStrings[0xf8] = "\\";
         tokenStrings[0xe5] = "'";
-        tokenStrings[0xe5] = "REM";
         tokenStrings[0xea] = ">";
         tokenStrings[0xeb] = "=";
         tokenStrings[0xec] = "<";

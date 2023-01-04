@@ -1,6 +1,6 @@
 /*  Abstract class for all BASIC detokenizers
     @(#) $Id: BaseDetokenizer.java 852 2012-01-06 08:07:08Z gfis $
-    2023-01-03: for m20 do not substitute REM by apostrophe
+    2023-01-03: for m20 do not substitute REM by apostrophe; property debug
     2022-01-28: log4j 2.17
     2017-05-29: javadoc 1.8
     2012-09-29, Georg Fischer
@@ -37,9 +37,6 @@ import  org.apache.logging.log4j.LogManager;
  */
 public abstract class BaseDetokenizer {
     public final static String CVSID = "@(#) $Id: BaseDetokenizer.java 852 2012-01-06 08:07:08Z gfis $";
-
-    /** whether to write debugging output (iff &gt; 0) */
-    protected final static int debug = 0;
 
     /** log4j logger (category) */
     private Logger log;
@@ -95,6 +92,21 @@ public abstract class BaseDetokenizer {
     //-----------------------
     // Other bean properties
     //-----------------------
+    /** whether to write debugging output (iff &gt; 0) */
+    protected int debug = 0;
+    /** Sets the debugging mode
+     *  @param mode 0=none, 1=some, 2=more
+     */
+    protected void setDebug(int mode) {
+        this.debug = mode;
+    } // setDebug
+    /** Gets the debugging mode
+     *  @return mode 0=none, 1=some, 2=more
+     */
+    protected int getDebug() {
+        return debug;
+    } // getDebug
+
     /** description of the BASIC dialect */
     protected String description;
     /** Sets the description of the BASIC dialect
@@ -268,7 +280,8 @@ public abstract class BaseDetokenizer {
     /** BASIC keywords for the specific dialect.
      *  The array is indexed with the binary token codes.
      */
-    protected String[] tokenStrings = new String[0x200];
+    protected final String[] tokenStrings = new String[0x200];
+
     /** Gets the token string for a code.
      *  @param tokenCode binary code (&lt; 0x200) of the token
      *  @return token string representation, BASIC keyword or operator
@@ -276,7 +289,7 @@ public abstract class BaseDetokenizer {
     protected String getToken(int tokenCode) {
         String result = tokenStrings[tokenCode];
         if (result == null) {
-            result = "{B " + Integer.toHexString(tokenCode) + "}";
+            result = "{?tok " + Integer.toHexString(tokenCode) + "}";
         }
         return result;
     } // getToken
@@ -318,7 +331,7 @@ public abstract class BaseDetokenizer {
      */
     protected String getFloat(byte[] floatn, int len) {
         prepareFloat(floatn, len);
-        StringBuffer result = new StringBuffer(16);
+        StringBuilder result = new StringBuilder(16);
         String digs = null;
         int ind = 0;
         if (debug >= 2) {
@@ -371,6 +384,29 @@ public abstract class BaseDetokenizer {
             , COLON     // behind a ":" in the text content
             };
 
+    /** output line */
+    protected StringBuilder line = new StringBuilder(256);
+    /** current token */
+    protected String token = null;
+    /** whether a space must be inserted after a token */
+    protected boolean insertSP = false;
+
+    /** Append a part to the output buffer.
+     *  @param part String to be appended, possibly with a space before
+     */
+    protected void appendPart(String part) {
+        if (insertSP && Character.isLetterOrDigit(part.charAt(0))) { // new starts with a letter
+            int last = line.length() - 1;
+            if (last >= 0) {
+                if (Character.isLetterOrDigit(line.charAt(last))) { // old ends with a letter
+                    line.append(' ');
+                }
+            }
+            insertSP = false;
+        }
+        line.append(part);
+    } // appendPart
+
     /** Reads the tokenized (binary) file and generates the ASCII output.
      *  @return whether the transformation was successful
      */
@@ -380,10 +416,9 @@ public abstract class BaseDetokenizer {
         byte[] lineNo  = new byte[2]; // BASIC line number for this line
         byte[] int2    = new byte[2]; // some integer value in big or little endian
         byte[] floatn  = new byte[8]; // some (double) floating point value, 4 or 8 bytes in big or little endian
-        StringBuffer line = new StringBuffer(128);
-        String token = null;
         State state = State.INIT;
         boolean readOff = true;
+        insertSP = false;
         byte bt = get1();
         int  ch = bt & 0xff; // holds always
 
@@ -400,12 +435,13 @@ public abstract class BaseDetokenizer {
                     break;
                 case OFFSET2:
                     lineOf[1] = bt;
-                    if (debug > 0) {
+                    if (debug >= 2) {
                         line.append("@" + Integer.toHexString(filePos) + ": ");
                     }
                     state = State.LINE_NO;
                     break;
                 case LINE_NO:
+                    insertSP = false;
                     lineNo[0] = bt;
                     state = State.LINE_NO2;
                     break;
@@ -419,13 +455,27 @@ public abstract class BaseDetokenizer {
                     ch = bt & 0xff;
                     if (false) {
                     } else if (ch == 0xff) {
-                        ch = (get1() & 0xff) - 0x80;
+                        bt = get1();
+                        ch = bt & 0x7f; // clear high bit
+                        if (debug >= 3) {
+                            line.append("{^" + Integer.toHexString(bt) + "," + Integer.toHexString(bt) + "}");
+                        }
                         token = getToken(ch);
+                        appendPart(token);
+                        insertSP = true;
+                     /*
+                        token = getToken(ch);
+                        if (debug >= 3) {
+                            line.append("{" + Integer.toHexString(bt) + "," + Integer.toHexString(ch) + "," + token + "}");
+                        }
                         if (false) {
                         } else if (token.equals("WHILE")) {
                             bt = get1();
                             ch = bt & 0xff;
-                            if (! getToken(ch).equals("+")) {
+                            if (debug >= 2) {
+                               line.append("{?while ch=" + Integer.toHexString(ch) + ", bt=" + Integer.toHexString(ch) + "}");
+                            }
+                            if (ch != '+' && ! getToken(ch).equals("+")) {
                                 readOff = false;
                             } // else skip a superfluous "+"
                         } else if (token.equals("ELSE")) {
@@ -436,13 +486,20 @@ public abstract class BaseDetokenizer {
                             } // else skip a superfluous ":"
                         }
                         line.append(token);
+                    */
                     } else if (ch >  0x7e) {
                         token = getToken(ch);
+                        if (debug >= 3) {
+                            line.append("{-" + Integer.toHexString(ch) + "," + token + "}");
+                        }
                         if (false) {
                         } else if (token.equals("WHILE")) {
                             bt = get1();
                             ch = bt & 0xff;
-                            if (! getToken(ch).equals("+")) {
+                            if (debug >= 2) {
+                               line.append("{?while ch=" + Integer.toHexString(ch) + ", bt=" + Integer.toHexString(bt) + "}");
+                            }
+                            if (ch != '+' && ! getToken(ch).equals("+")) {
                                 readOff = false;
                             } // else skip a superfluous "+"
                         } else if (token.equals("ELSE")) {
@@ -452,16 +509,19 @@ public abstract class BaseDetokenizer {
                                 readOff = false;
                             } // else skip a superfluous ":"
                         }
-                        line.append(token);
+                        appendPart(token);
+                        insertSP = true;
                     } else if (ch == 0x3a) { // ":" has some exceptions
-                        line.append((char) ch);
-                    //  state = State.COLON;
+                        state = State.COLON;
                     } else if (ch >= 0x20) {
-                        line.append((char) ch);
+                        appendPart(Character. toString(ch));
+                    } else if (ch >= ' ') {
+                        insertSP = false;
+                        line.append(ch);
                     } else { // < 0x20
                         switch (ch) {
                             case 0x00: // end of line
-                                charWriter.println(line.toString());
+                                charWriter.println(line.toString().replaceAll("\\:REM\\\'", "\\\'"));
                                 line.setLength(0);
                                 state = state.OFFSET;
                                 break;
@@ -527,32 +587,40 @@ public abstract class BaseDetokenizer {
                                 line.append(getFloat(floatn, 8));
                                 break;
                             default:
-                                line.append("{0x" + Integer.toHexString(ch) + "}");
+                                line.append("{?txt " + Integer.toHexString(ch) + "}");
                                 break;
                         } // switch (ch)
                     } // < 0x20
                     break;
 
                 case COLON:
+                    insertSP = false;
                     if (false) {
+                    } else if (ch == 0xff) {
+                        bt = get1();
+                        ch = bt & 0x7f; // clear high bit
+                        if (debug >= 3) {
+                            line.append("{^:" + Integer.toHexString(bt) + "," + Integer.toHexString(bt) + "}");
+                        }
+                        token = getToken(ch);
+                        line.append(":");
+                        line.append(token);
                     } else if (ch >  0x7e) {
                         token = getToken(ch);
                         if (false) {
                         } else if (token.equals("ELSE")) {
-                            line.append(token); // "ELSE" instead of ":ELSE"
-                        } else if (token.equals("REM")) {
+                            appendPart(token); // "ELSE" instead of ":ELSE"
+                        } else if (token.equals("WHILE")) {
                             line.append(":");
-                    /*
-                            if (! getDialect().equals("m20")) {
-                                line.append("\'"); // apostrophe is replacement for ":REM"
-                            } else {
-                                line.append(token);
-                            }
-                    */
+                            readOff = false; // try current byte again
+                        } else if (token.equals("\'")) { // 0x27 = '
+                            line.append("'");
                         } else {
                             line.append(":");
-                            readOff = false;
+                            line.append(token); // e.g. "REM"
                         }
+                    } else if (ch == 0x27) { // 0x27 = '
+                        line.append("'");
                     } else {
                         line.append(":"); // normal colon, no special treatment
                         readOff = false; // try current byte again

@@ -1,5 +1,6 @@
 /*  Detokenize BASIC programs
     @(#) $Id: NumwordCommand.java 820 2011-11-07 21:59:07Z gfis $
+    2023-01-04: option -d
     2016-10-12: less imports
     2012-09-29, Georg Fischer
 */
@@ -63,11 +64,13 @@ final public class Command {
     public String process(String args[]) {
         /** internal buffer for the string to be output */
         DetokenizerFactory factory = new DetokenizerFactory();
-        String dialect = "m20";
+        String dialect = "m20"; // default
+        int    debug = 0; // default: none
         try {
             int iarg = 0; // index for command line arguments
             if (iarg >= args.length) { // usage, with known BASIC dialects
-                System.err.println("usage:\tjava org.teherba.basdetok.Command [-enc encoding]");
+                System.err.println("usage:\tjava org.teherba.basdetok.Command [-d mode] [-copy|-m20|-msx|-pc] input.bas > output.asc");
+                System.err.println("    -d  "            + "        mode: 0 = none, 1 = some, 2 = more, 3 = all");
                 Iterator<BaseDetokenizer> iter = factory.getIterator();
                 while (iter.hasNext()) {
                     BaseDetokenizer detokenizer = (BaseDetokenizer) iter.next();
@@ -77,18 +80,22 @@ final public class Command {
                             + detokenizer.getDescription());
                 } // while iter
             } else { // >= 1 argument
-                dialect  = "m20";
                 // get all options
                 while (iarg < args.length && args[iarg].startsWith("-")) {
-                    String option = args[iarg ++];
-                    if (option.equals("-ident")) {
-                        dialect = option.substring(1);
-                    }
-                    if (option.equals("-m20")) {
-                        dialect = option.substring(1);
-                    }
-                    if (option.equals("-pc")) {
-                        dialect = option.substring(1);
+                    String option = args[iarg ++].substring(1); // remove "-"
+                    if (false) {
+                    } else if (option.equals("d")) {
+                        debug = Integer.parseInt(args[iarg ++]);
+                    } else if (option              .equals("copy")) {
+                        dialect = option;
+                    } else if (option.toLowerCase().equals("m20" )) {
+                        dialect = option.toLowerCase();
+                    } else if (option.toLowerCase().equals("msx" )) {
+                        dialect = option.toLowerCase();
+                    } else if (option.toLowerCase().equals("pc"  )) {
+                        dialect = option.toLowerCase();
+                    } else {
+                        System.err.println("invalid option \"-" + option + "\"");
                     }
                 } // while options
 
@@ -98,6 +105,7 @@ final public class Command {
                     if (iarg < args.length) { // with filename argument
                         fileName = args[iarg ++];
                     }
+                    detokenizer.setDebug(debug);
                     detokenizer.openFile(0, fileName); // binary
                     detokenizer.openFile(1, null); // character, write to STDOUT at the moment
                     detokenizer.generate();

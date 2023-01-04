@@ -54,29 +54,4 @@ public class BigEndianDetokenizer extends BaseDetokenizer {
         return (((int2[0] & 0xff) << 8) | (int2[1] & 0xff)) & 0xffff;
     } // getInt2
 
-    /** Prepares 4 or 8 bytes before being interpreted as a 32 or 64 bit,
-     *  big-endian, IEEE 754 floating point number.
-     *  The bytes are shifted in place.
-     *  This method can be overwritten in subclasses.
-     *  @param floatn 4 or 8 bytes containing the value
-     *  @param len number of bytes in <em>floatn</em>, 4 or 8
-     */
-    protected void prepareFloat(byte[] floatn, int len) {
-        // default: do nothing
-    } // prepareFloat
-
-    /** Initializes the tokenizer, especially: sets the token list.
-     *  This method will be overridden by the class for the specific BASIC dialect.
-     */
-    protected void initialize() {
-        super.initialize();
-    } // initialize
-
-    /** Reads the tokenized (binary) file and generates the ASCII output.
-     *  @return whether the transformation was successful
-     */
-    protected boolean generate() {
-        return super.generate();
-    } // generate
-
 } // BigEndianDetokenizer
