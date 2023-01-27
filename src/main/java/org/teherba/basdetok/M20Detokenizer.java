@@ -1,5 +1,6 @@
 /*  Detokenizer for Olivetti M20 BASIC 
     @(#) $Id$
+    2023-01-27: byte reordering for double
     2023-01-03: GOTO instead of GO TO
     2012-09-29, Georg Fischer
 */
@@ -218,35 +219,91 @@ public class M20Detokenizer extends BigEndianDetokenizer {
 
     /** Prepares 4 or 8 bytes before being interpreted as a 32 or 64 bit, 
      *  big-endian, IEEE 754 floating point number.
-     *  The bytes are shifted in place.
+     *  The bytes are reordered in place.
      *  For the M20, individual words are 16 bit big-endian, 
      *  but the 2 or 4 words must still be swapped.
      *  The bit pattern is IEEE 754: sign in bit 31, exponent +127 in
      *  bits 23-30, mantissa in bits 0-22 plus imaginary bit 23 = 1.
      *  For example:
      *  <pre>
+     *  float = 4 bytes:
+     *                    0  1  2  3
      *  Native M20        00 00 40 f0
+     *                    2  3  0  1
      *  words swapped     40 f0 00 00, sign postive, exponent 0x81 = 2 + 127, mantissa (1).111
      *  binary value      111.1
      *  decimal           7.5
+     *
+     *  double = 8 bytes, original order:
+     *     0  1  2  3  4  5  6  7
+     *  1f 53 c8 d4 f1 21 fb 40 09
+     *    
+     *  bytes must be reordered like this:
+     *     6  7  4  5  0  1  2  3
+     *     40 09 21 fb 53 c8 d4 f1
+     *  giving 3.14159265
      *  </pre>
      *  @param floatn 4 or 8 bytes containing the value
      *  @param len number of bytes in <em>floatn</em>, 4 or 8
      */
     protected void prepareFloat(byte[] floatn, int len) {
-        int isrc = 0;
-        int itar = len - 2;
-        byte temp = 0;
-        while (isrc < itar) {
-            temp = floatn[itar + 0];
-            floatn[itar + 0] = floatn[isrc + 0];
-            floatn[isrc + 0] = temp;
-            temp = floatn[itar + 1];
-            floatn[itar + 1] = floatn[isrc + 1];
-            floatn[isrc + 1] = temp;
-            isrc += 2;
-            itar -= 2;
-        } // while isrc
+        byte[] temp = new byte[8];
+        if (len == 4) {
+            temp[0] = floatn[2];
+            temp[1] = floatn[3];
+            temp[2] = floatn[0];
+            temp[3] = floatn[1];
+        } else {
+            temp[0] = floatn[6];
+            temp[1] = floatn[7];
+            temp[2] = floatn[4];
+            temp[3] = floatn[5];
+            temp[4] = floatn[0];
+            temp[5] = floatn[1];
+            temp[6] = floatn[2];
+            temp[7] = floatn[3];
+        }
+        for (int isrc = 0; isrc < len; isrc ++) {
+            floatn[isrc] = temp[isrc];
+        }
     } // prepareFloat
     
+    /** Postprocess a float or double number.
+     *  This method is typically overwritten in subclasses.
+     *  @param sfloat String with number built so far
+     *  @param len number of bytes: 4 or 8
+     *  <pre>
+     * ! 320 IF U > 1E+10 THEN END
+     * --- 24 ----
+     * ! 320 IF U > 1.0E10 THEN END
+     * </pre>
+     */
+    protected String postProcessFloat(String sfloat, int len) {
+        if (len == 8) {
+            sfloat += "#";
+        }
+        if (! sfloat.matches("E[\\+\\-]]")) {
+            sfloat = sfloat.replaceAll("E", "E\\+");
+        }
+        return sfloat.replaceAll("\\.0E", "E");
+    } // postProcessFloat
+
+    /** Translate a single character.
+     *  @param ch the character to be translated
+     *  @return the translated character
+     */
+    protected String translate(int ch) {
+        switch (ch) {
+        /*
+            case '[':  return "\u00e4"; // Ae
+            case '\\': return "\u00f6"; // Oe
+            case ']':  return "\u00fc"; // Ue
+            case '{':  return "\u00c4"; // ae
+            case '|':  return "\u00d6"; // oe
+            case '}':  return "\u00dc"; // ue
+        */
+            default:   return Character.toString(ch); // default: no translation
+        } // switch ch
+    } // translate
+
 } // M20Detokenizer

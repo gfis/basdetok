@@ -324,6 +324,15 @@ public abstract class BaseDetokenizer {
         // default: do nothing
     } // prepareFloat
 
+    /** Postprocess a float or double number.
+     *  This method is typically overwritten in subclasses.
+     *  @param sfloat String with number built so far
+     *  @param len number of bytes: 4 or 8
+     */
+    protected String postProcessFloat(String sfloat, int len) {
+        return sfloat;
+    } // prepareFloat
+
     /** Gets some floating point value from 4 or 8 bytes, in big or little endian mode
      *  @param floatn 4 or 8 bytes containing the value
      *  @param len number of bytes in floatn
@@ -339,32 +348,32 @@ public abstract class BaseDetokenizer {
             int bits = 0;
             while (ind < len) {
                 result.append(sep);
-                sep = "";
+                sep = " ";
                 digs = Integer.toHexString(floatn[ind] & 0xff);
                 digs = "00000000".substring(0, 2 - digs.length()) + digs;
                 result.append(digs);
-                bits = (bits << 8) | (floatn[ind] & 0xff);
                 ind ++;
             } // while ind
-            if (false) {
-                result.append(",");
-                digs = Integer.toHexString(bits);
-                digs = "00000000".substring(0, 8 - digs.length()) + digs;
-                result.append(digs);
-            }
-            result.append("=");
-            result.append(String.valueOf(Float.intBitsToFloat(bits)));
             result.append("}");
-        } else { // no debug
+        } // debug
+        String sfloat;
+        if (len == 4) {
             int bits = 0;
             while (ind < len) {
                 bits = (bits << 8) | (floatn[ind] & 0xff);
                 ind ++;
             } // while ind
-            String sfloat = String.valueOf(Float.intBitsToFloat(bits));
-            result.append(sfloat.startsWith("0.") ? sfloat.substring(1) : sfloat);
-        } // no debug
-        return result.toString();
+            sfloat = String.valueOf(Float.intBitsToFloat(bits));
+        } else { // len == 8
+            long bits = 0;
+            while (ind < len) {
+                bits = (bits << 8) | (floatn[ind] & 0xff);
+                ind ++;
+            } // while ind
+            sfloat = String.valueOf(Double.longBitsToDouble(bits));
+        }
+        result.append(sfloat.startsWith("0.") ? sfloat.substring(1) : sfloat);
+        return postProcessFloat(result.toString(), len);
     } // getFloat
 
 
@@ -406,6 +415,14 @@ public abstract class BaseDetokenizer {
         line.append(part);
         insertSP = isToken && ! part.equals("FN");
     } // appendPart
+
+    /** Translate a single character.
+     *  @param ch the character to be translated
+     *  @return the translated character
+     */
+    protected String translate(int ch) {
+        return Character.toString(ch); // default: no translation
+    } // translate
 
     /** Reads the tokenized (binary) file and generates the ASCII output.
      *  @return whether the transformation was successful
@@ -512,13 +529,21 @@ public abstract class BaseDetokenizer {
                     } else if (ch == 0x3a) { // ":" has some exceptions
                         state = State.COLON;
                     } else if (ch >= 0x20) {
-                        appendPart(Character. toString(ch), false);
+                        appendPart(translate(ch), false);
+                /*
                     } else if (ch >= ' ') {
                         insertSP = false;
                         line.append(ch);
+                */
                     } else { // < 0x20
                         switch (ch) {
                             case 0x00: // end of line
+                            /*
+                                if (insertSP) {
+                                    line.append(' ');
+                                    insertSP = false;
+                                }
+                            */
                                 charWriter.println(line.toString().replaceAll("\\:REM\\\'", "\\\'"));
                                 line.setLength(0);
                                 state = state.OFFSET;
